@@ -10,6 +10,8 @@ modded class ModStructure
 
 	protected string m_Name;
 
+	protected ref CF_ModHash m_Hash;
+
 	void ~ModStructure()
 	{
 		delete m_ModInputs;
@@ -48,6 +50,8 @@ modded class ModStructure
 		if ( GetGame().ConfigIsExisting( m_ModPath ) )
 		{			
 			GetGame().ConfigGetChildName( "CfgMods", m_ModIndex, m_Name );
+
+			m_Hash = new CF_ModHash( m_Name );
 
 			if ( !OnLoad( m_ModName ) )
 			{
@@ -198,6 +202,11 @@ modded class ModStructure
 	string GetName()
 	{
 		return m_Name;
+	}
+
+	CF_ModHash GetHash()
+	{
+		return m_Hash;
 	}
 
 	string GetModPath()

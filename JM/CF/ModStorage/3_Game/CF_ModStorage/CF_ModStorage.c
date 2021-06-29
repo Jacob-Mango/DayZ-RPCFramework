@@ -4,28 +4,28 @@
  */
 class CF_ModStorage
 {
-	static const int VERSION = 2;
+	static const int VERSION = 4;
 
 	protected int m_Version;
 
 	protected ModStructure m_Mod;
-	protected string m_ModName;
+	protected ref CF_ModHash m_Hash;
 
 	private autoptr array<ref CF_ModStorage_Data> m_Data = new array<ref CF_ModStorage_Data>();
 	private int m_Index;
 
-	void CF_ModStorage(ModStructure mod, string modNameOverride = "")
+	void CF_ModStorage(ref ModStructure mod, ref CF_ModHash hashOverride = NULL)
 	{
 		m_Version = -1;
 		m_Mod = mod;
 		if (m_Mod)
 		{
 			m_Version = m_Mod.GetStorageVersion();
-			m_ModName = m_Mod.GetName();
+			m_Hash = m_Mod.GetHash();
 		}
 		else
 		{
-			m_ModName = modNameOverride;
+			m_Hash = hashOverride;
 		}
 	}
 
@@ -53,7 +53,7 @@ class CF_ModStorage
 	 */
 	void Save(ParamsWriteContext ctx)
 	{
-		ctx.Write(m_ModName);
+		m_Hash.Save(ctx);
 
 		ctx.Write(m_Version);
 
@@ -93,14 +93,14 @@ class CF_ModStorage
 		return true;
 	}
 
-	CF_ModStorage_Data ReadRaw()
+	ref CF_ModStorage_Data ReadRaw()
 	{
 		if (m_Index >= m_Data.Count()) return null;
 
 		return m_Data[m_Index++];
 	}
 
-	void WriteRaw(CF_ModStorage_Data data)
+	void WriteRaw(ref CF_ModStorage_Data data)
 	{
 		data.OnSet();
 		m_Data.Insert(data);
@@ -114,7 +114,7 @@ class CF_ModStorage
 
 	bool Read(out bool value)
 	{
-		CF_ModStorage_Data data = ReadRaw();
+		ref CF_ModStorage_Data data = ReadRaw();
 		if (!data) return false;
 
 		value = Param1<bool>.Cast(data.Get()).param1;
@@ -124,7 +124,7 @@ class CF_ModStorage
 
 	bool Read(out int value)
 	{
-		CF_ModStorage_Data data = ReadRaw();
+		ref CF_ModStorage_Data data = ReadRaw();
 		if (!data) return false;
 
 		value = Param1<int>.Cast(data.Get()).param1;
@@ -134,7 +134,7 @@ class CF_ModStorage
 
 	bool Read(out float value)
 	{
-		CF_ModStorage_Data data = ReadRaw();
+		ref CF_ModStorage_Data data = ReadRaw();
 		if (!data) return false;
 
 		value = Param1<float>.Cast(data.Get()).param1;
@@ -144,7 +144,7 @@ class CF_ModStorage
 
 	bool Read(out vector value)
 	{
-		CF_ModStorage_Data data = ReadRaw();
+		ref CF_ModStorage_Data data = ReadRaw();
 		if (!data) return false;
 
 		value = Param1<vector>.Cast(data.Get()).param1;
@@ -154,7 +154,7 @@ class CF_ModStorage
 
 	bool Read(out string value)
 	{
-		CF_ModStorage_Data data = ReadRaw();
+		ref CF_ModStorage_Data data = ReadRaw();
 		if (!data) return false;
 
 		value = Param1<string>.Cast(data.Get()).param1;
@@ -167,9 +167,9 @@ class CF_ModStorage
 	 *
 	 * @note value can't be null and can't be marked out/inout
 	 */
-	bool Read(Class value)
+	bool Read(ref Class value)
 	{
-		CF_ModStorage_Data data = ReadRaw();
+		ref CF_ModStorage_Data data = ReadRaw();
 		if (!data) return false;
 
 		if (!value) return data.IsNull();
@@ -177,9 +177,9 @@ class CF_ModStorage
 		return data.Get(value);
 	}
 
-	bool Read(TBoolArray value)
+	bool Read(ref TBoolArray value)
 	{
-		CF_ModStorage_Data data = ReadRaw();
+		ref CF_ModStorage_Data data = ReadRaw();
 		if (!data) return false;
 
 		Class cls = value;
@@ -189,9 +189,9 @@ class CF_ModStorage
 		return true;
 	}
 
-	bool Read(TIntArray value)
+	bool Read(ref TIntArray value)
 	{
-		CF_ModStorage_Data data = ReadRaw();
+		ref CF_ModStorage_Data data = ReadRaw();
 		if (!data) return false;
 
 		Class cls = value;
@@ -201,9 +201,9 @@ class CF_ModStorage
 		return true;
 	}
 
-	bool Read(TFloatArray value)
+	bool Read(ref TFloatArray value)
 	{
-		CF_ModStorage_Data data = ReadRaw();
+		ref CF_ModStorage_Data data = ReadRaw();
 		if (!data) return false;
 
 		Class cls = value;
@@ -213,9 +213,9 @@ class CF_ModStorage
 		return true;
 	}
 
-	bool Read(TVectorArray value)
+	bool Read(ref TVectorArray value)
 	{
-		CF_ModStorage_Data data = ReadRaw();
+		ref CF_ModStorage_Data data = ReadRaw();
 		if (!data) return false;
 
 		Class cls = value;
@@ -225,9 +225,9 @@ class CF_ModStorage
 		return true;
 	}
 
-	bool Read(TStringArray value)
+	bool Read(ref TStringArray value)
 	{
-		CF_ModStorage_Data data = ReadRaw();
+		ref CF_ModStorage_Data data = ReadRaw();
 		if (!data) return false;
 
 		Class cls = value;
