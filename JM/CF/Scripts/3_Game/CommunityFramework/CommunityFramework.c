@@ -2,7 +2,7 @@ CGame CF_CreateGame()
 {
 	Print("CF_CreateGame()");
 	g_Game = new DayZGame;
-	CF._GameInit();
+	CF._GameInit(true);
 	return g_Game;
 }
 
@@ -19,17 +19,49 @@ class CommunityFramework
     static CF_ObjectManager ObjectManager;
 	static CF_XML XML;
 
+    static CF_Log Log;
+    static CF_Trace Trace;
+
+    static ref CF_MVVM MVVM;
+    static ref CF_TypeConverters TypeConverters;
+
+    #ifdef CF_WINDOWS
+    static ref CF_Windows Windows;
+    #endif
+
 	#ifdef CF_MODULE_PERMISSIONS
 	static ref CF_Permission_ManagerBase Permission;
 	#endif
+
+    static DayZGame Game()
+    {
+        #ifdef COMPONENT_SYSTEM 
+        if (!g_Game)
+        {
+            CF_CreateGame();
+        }
+        #endif
+
+        return g_Game;
+    }
 
     /**
      * @brief [Internal] CommunityFramework initilization for 3_Game
      *
      * @return void
      */
-	static void _GameInit()
+	static void _GameInit(bool realInit = false)
 	{
+        if (!realInit) Game();
+
+        TypeConverters = TypeConverters._Init();
+        MVVM = MVVM._Init();
+        
+        #ifdef CF_WINDOWS
+        Windows = Windows._Init();
+        #endif
+
+        Log._Init();
 	}
 
     /**
@@ -44,6 +76,20 @@ class CommunityFramework
 		#endif
 	}
 
+    static void _MissionInit()
+    {
+        #ifdef CF_WINDOWS
+		CF.Windows._MissionInit();
+        #endif
+    }
+
+    static void _MissionCleanup()
+    {
+        #ifdef CF_WINDOWS
+		CF.Windows._MissionCleanup();
+        #endif
+    }
+
     /**
      * @brief [Internal] CommunityFramework cleanup
      *
@@ -54,9 +100,23 @@ class CommunityFramework
         ObjectManager._Cleanup();
 		XML._Cleanup();
 
+        MVVM._Cleanup();
+        Windows._Cleanup();
+
 		#ifdef CF_MODULE_PERMISSIONS
 		Permission._Cleanup();
 		#endif
+
+        Log._Cleanup();
+    }
+
+    static bool StringToBool(string str)
+    {
+        str.ToLower();
+        str.Trim();
+        if (str == "true") return true;
+        if (str == "false") return false;
+        return str.ToInt();
     }
 };
 

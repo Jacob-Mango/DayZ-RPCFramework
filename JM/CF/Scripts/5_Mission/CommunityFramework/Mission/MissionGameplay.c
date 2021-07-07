@@ -31,8 +31,14 @@ modded class MissionGameplay
 		GetModuleManager().OnMissionFinish();
 	}
 
-	void OnMissionLoaded()
+	override void OnMissionLoaded()
 	{
+		super.OnMissionLoaded();
+
+		#ifndef COMPONENT_SYSTEM
+		CF_TestModelInstance = new CF_TestModel();
+		#endif
+
 		GetModuleManager().OnMissionLoaded();
 	}
 
